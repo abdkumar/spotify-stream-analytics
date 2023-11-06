@@ -1,0 +1,27 @@
+# Data Generation Configurations
+
+# Number of users to generate data for
+N_USERS: 1000
+
+# Number of samples to generate per day for each user
+N_SAMPLES_PER_DAY: 100
+
+# Maximum number of songs to generate per day for each user
+MAX_SONGS_PER_DAY_PER_USER: 10
+
+# Start date for generating data (format: YYYY-MM-DD)
+DATA_START_DATE: '2023-01-01'
+
+# End date for generating data (format: YYYY-MM-DD)
+DATA_END_DATE: '2023-11-01'
+
+# List of Spotify playlist URIs to use for song recommendations
+PLAYLIST_URI:
+  - 'https://open.spotify.com/playlist/1uvSuVApwODnOSBGkpBiR6'
+  - 'https://open.spotify.com/playlist/37i9dQZEVXbLZ52XmnySJg'
+  # - 'https://open.spotify.com/playlist/2x229NIyrJVshfpTcafQLE'
+  # - 'https://open.spotify.com/playlist/37i9dQZF1DWZqTcNLmb3sH'
+  # - 'https://open.spotify.com/playlist/37i9dQZF1DWSxEc2RjBCQv'
+
+# Path to the CSV file containing location mappings
+LOCATION_MAPPING_PATH: 'cities.csv'

@@ -30,7 +30,7 @@ resource "azurerm_network_interface" "vm_nic" {
   location            = var.location
 
   ip_configuration {
-    name                          = var.ip_configuration
+    name                          = "internal"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.public_ip.id
@@ -64,6 +64,7 @@ resource "azurerm_linux_virtual_machine" "linux_vm" {
   name                            = var.vm_name
   resource_group_name             = var.rg_name
   location                        = var.location
+  depends_on = [ azurerm_network_interface_security_group_association.association ]
   size                            = var.vm_size
   admin_username                  = var.vm_username
   admin_password                  = var.vm_password

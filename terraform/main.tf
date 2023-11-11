@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.75.0"
+      version = "3.79.0"
     }
   }
 }
@@ -32,6 +32,7 @@ data "azurerm_key_vault" "kv_name" {
 data "azurerm_key_vault_secret" "virtual_machine_user" {
   name         = var.vm_user_secret_name
   key_vault_id = data.azurerm_key_vault.kv_name.id
+  
 }
 
 data "azurerm_key_vault_secret" "virtual_machine_passwd" {
@@ -44,7 +45,7 @@ data "azurerm_key_vault_secret" "virtual_machine_passwd" {
 ######### 3. Azure Linux Virtual Machine deployment #########
 
 
-module "linux_vm" {
+module "kafka_vm" {
   source               = "./terraform-modules/virtual_machine"
   rg_name              = var.rg_name
   location             = var.rg_location

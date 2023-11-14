@@ -1,0 +1,14 @@
+sudo apt-get install openjdk-8-jre-headless
+sudo apt install python3-pip
+
+wget https://dlcdn.apache.org/spark/spark-3.5.0/spark-3.5.0-bin-hadoop3.tgz
+
+tar -xvf spark-3.5.0-bin-hadoop3.tgz
+
+export SPARK_HOME=~/spark-3.5.0-bin-hadoop3
+export PATH=$SPARK_HOME/bin:$PATH
+
+cd ~/spotify-stream-analytics
+
+pip3 install pyspark
+pip3 install -r requirements.txt

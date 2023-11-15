@@ -1,15 +1,15 @@
 import os
-from typing import List
+from typing import List, Optional
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import col, year, month, dayofmonth, hour
 import pyspark.sql.functions as F
 from pyspark.sql.streaming import DataStreamReader
-
+from delta.tables import DeltaTable
 from pyspark.sql.types import StructType
 from dotenv import load_dotenv
 
 from schema import events_schema, processed_schema
-from utils import create_empty_delta_table
+
 
 load_dotenv()
 # https://github.com/delta-io/delta/issues/593#issuecomment-816678840
@@ -27,7 +27,8 @@ KAFKA_TOPIC_NAME = os.environ.get("KAFKA_EVENTS_TOPIC")
 KAFKA_BOOTSTRAP_SERVER = os.environ.get("KAFKA_BROKER_ADDRESS")  # "localhost:9092"
 
 CHECKPOINT_PATH = os.environ.get("CHECKPOINT_PATH")
-OUTPUT_PATH = f"abfss://{ADLS_CONTAINER_NAME}@{ADLS_STORAGE_ACCOUNT_NAME}.dfs.core.windows.net/{ADLS_FOLDER_PATH}"
+# OUTPUT_PATH = f"abfss://{ADLS_CONTAINER_NAME}@{ADLS_STORAGE_ACCOUNT_NAME}.dfs.core.windows.net/{ADLS_FOLDER_PATH}" # f string is not working properly
+OUTPUT_PATH = f"abfss://{ADLS_CONTAINER_NAME}@{ADLS_STORAGE_ACCOUNT_NAME}.dfs.core.windows.net/" + ADLS_FOLDER_PATH
 
 
 # Required Spark  packages
@@ -37,7 +38,7 @@ PACKAGES = [
     "io.delta:delta-core_2.12:2.4.0",
     "org.apache.hadoop:hadoop-azure:3.3.6",
     "org.apache.hadoop:hadoop-azure-datalake:3.3.6",
-    "org.apache.hadoop:hadoop-common:3.3.6"
+    "org.apache.hadoop:hadoop-common:3.3.6",
 ]
 
 def create_or_get_spark(
@@ -145,6 +146,37 @@ def process_stream(df: DataFrame, schema: StructType) -> DataFrame:
     return df
 
 
+def create_empty_delta_table(
+    spark: SparkSession,
+    schema: StructType,
+    path: str,
+    partition_cols: Optional[List[str]]=None,
+    enable_cdc: Optional[bool]=False,
+):
+    """_summary_
+
+    Args:
+        spark (SparkSession): _description_
+        schema (StructType): _description_
+        partitionBy_cols (List[str]): _description_
+        path (str): _description_
+        enable_cdc (bool): _description_
+    """
+    if not DeltaTable.isDeltaTable(spark, path):
+        custom_builder = DeltaTable.createIfNotExists(spark).location(path).addColumns(schema)
+        if partition_cols:
+            custom_builder = custom_builder.partitionedBy(partition_cols)
+        if enable_cdc:
+            custom_builder =custom_builder.property("delta.enableChangeDataFeed", "true")
+        
+        table = custom_builder.execute()
+        print("Delta table created")
+        return table
+    else:
+        print("Delta Table already exists")
+        return None
+        
+
 def create_write_stream(
     df: DataFrame, checkpoint_path: str, output_path: str, trigger: str = "2 minutes"
 ):
@@ -169,9 +201,9 @@ def create_write_stream(
     )
     return stream
 
-#===================================================================================
+# ===================================================================================
 #                           MAIN ENTRYPOINT
-#===================================================================================
+# ===================================================================================
 
 # Create a SparkSession
 spark = create_or_get_spark(
@@ -180,7 +212,7 @@ spark = create_or_get_spark(
 # setup spark-azure connection
 spark.conf.set(
     f"fs.azure.account.key.{ADLS_STORAGE_ACCOUNT_NAME}.dfs.core.windows.net",
-    ADLS_ACCOUNT_KEY,
+    ADLS_ACCOUNT_KEY
 )
 print("Spark Session Created")
 
@@ -193,19 +225,24 @@ stream_df = process_stream(stream_df, events_schema)
 print("Stream is Processed")
 
 # Create empty delta table at destination & enable CDC
-create_empty_delta_table(
+empty_table = create_empty_delta_table(
     spark=spark,
     schema=processed_schema,
-    partition_cols=["month", "day", "hour"],
     path=OUTPUT_PATH,
-    enable_cdc=True,
+    partition_cols=["month", "day", "hour"],
+    enable_cdc=True
 )
 
+if DeltaTable.isDeltaTable(spark, OUTPUT_PATH):
+    print("it is a delta table")
+else:
+    print("it is not a delta table")
+    
 # create write stream object
-write_stream = create_write_stream(stream_df, CHECKPOINT_PATH, OUTPUT_PATH, trigger="2 minutes")
+write_stream = create_write_stream(
+    stream_df, CHECKPOINT_PATH, OUTPUT_PATH, trigger="2 minutes"
+)
 print("Write Stream Created")
 
 # start the write stream object
-write_stream.start()
-
-write_stream.awaitTermination()
+write_stream.start().awaitTermination()

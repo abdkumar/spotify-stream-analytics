@@ -11,3 +11,4 @@ terraform.tfstate.backup
 temp/
 tfplan
 *.ipynb
+checkpoint/

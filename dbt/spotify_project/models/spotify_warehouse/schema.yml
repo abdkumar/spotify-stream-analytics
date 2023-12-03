@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: spotify_staging
+    database: dev_spotify_data 
+    schema: test  
+    tables:
+      - name: staging_events
+      - name: staging_stream
+
+
+
+
+

@@ -1,3 +1,4 @@
+# Reference: https://denisecase.github.io/starting-spark/
 import os
 from typing import List, Optional
 from pyspark.sql import SparkSession, DataFrame
@@ -41,6 +42,8 @@ PACKAGES = [
     "org.apache.hadoop:hadoop-common:3.3.6",
 ]
 
+print(KAFKA_TOPIC_NAME)
+
 def create_or_get_spark(
     app_name: str, packages: List[str], cluster_manager="local[*]"
 ) -> SparkSession:
@@ -63,7 +66,7 @@ def create_or_get_spark(
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
         .config(
             "spark.sql.catalog.spark_catalog",
-            "org.apache.spark.sql.delta.catalog.DeltaCatalog",
+            "org.apache.spark.sql.delta.catalog.DeltaCatalog"
         )
         .config(
             "fs.abfss.impl", "org.apache.hadoop.fs.azurebfs.SecureAzureBlobFileSystem"

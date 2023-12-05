@@ -31,13 +31,12 @@ with unique_songs as (
     FROM  {{ref('cdc_staging')}}
 ),
 final as (
-    select songs.* exclude (artistName, artistId), artists.artistKey
+    select songs.* exclude (artistName, artistId), artists.artistKey,
+    ROW_NUMBER() over (partition by songs.song_id order by artists.artistName) as rnk
     from unique_songs AS songs
     INNER JOIN
     {{ref('dim_artists')}} AS artists
-    ON songs.artistId=artists.artistId  AND songs.artistName=artists.artistName
+    ON songs.artistId=artists.artistId 
 )
-
 SELECT {{ dbt_utils.generate_surrogate_key(['song_id', 'song_title', 'album_name']) }} as songKey,
-*
-FROM final where exists (select 1 from final)
+final.* exclude(rnk) from final WHERE rnk=1

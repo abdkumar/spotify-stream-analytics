@@ -1,3 +1,3 @@
 {{ config(materialized='table')}}
 
-SELECT * from {{source('spotify_staging', 'staging_stream')}} 
+SELECT distinct * from {{source('spotify_staging', 'staging_stream')}} 

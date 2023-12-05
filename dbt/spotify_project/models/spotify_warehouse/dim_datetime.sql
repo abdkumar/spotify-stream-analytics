@@ -8,14 +8,19 @@
   )
 }}
 
+with cte as (
+  select to_timestamp(listen_timestamp) as timestamp from {{ref('cdc_staging')}}
+),
+final as (
 SELECT distinct
-    DATE_PART(epoch_second, release_date) AS dateKey,
-    release_date as date,
-    EXTRACT( DAYOFWEEK FROM release_date) AS dayOfWeek,
-    EXTRACT( DAY FROM release_date) AS dayOfMonth,
-    EXTRACT( WEEK FROM release_date) AS weekOfYear,
-    EXTRACT( MONTH FROM release_date) AS month,
-    EXTRACT( YEAR FROM release_date) AS year,
-    CASE WHEN EXTRACT( DAYOFWEEK FROM release_date) IN (6,7) THEN True ELSE False END AS weekendFlag
-FROM  {{ref('cdc_staging')}}
-where exists (select 1 from {{ref('cdc_staging')}})
+    to_date(timestamp) as date,
+    EXTRACT( DAYOFWEEK FROM timestamp) AS dayOfWeek,
+    EXTRACT( DAY FROM timestamp) AS dayOfMonth,
+    EXTRACT( WEEK FROM timestamp) AS weekOfYear,
+    EXTRACT( MONTH FROM timestamp) AS month,
+    EXTRACT( YEAR FROM timestamp) AS year,
+    CASE WHEN EXTRACT( DAYOFWEEK FROM timestamp) IN (6,7) THEN True ELSE False END AS weekendFlag
+FROM  cte where exists (select 1 from cte)
+)
+select *, {{ dbt_utils.generate_surrogate_key(['date']) }} AS dateKey from final
+

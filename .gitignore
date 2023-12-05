@@ -17,3 +17,4 @@ delta_checkpoint.txt
 dbt/spotify_project/package-lock.yml
 dbt/logs/
 dbt/spotify_project/.user.yml
+.vscode/settings.json

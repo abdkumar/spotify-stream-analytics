@@ -15,8 +15,8 @@
 }}
 
 with final as (
-    select dim_location.locationKey AS locationKey
-    , dim_users.userKey AS userKey, dim_songs.songKey AS songKey, dim_artists.artistKey AS artistKey,
+    select 
+    dim_users.userKey AS userKey, dim_songs.songKey AS songKey,
      dim_datetime.dateKey AS dateKey,
     to_timestamp(staging_stream.listen_timestamp) as timestamp
     from {{ref("cdc_staging")}} AS staging_stream
@@ -29,12 +29,10 @@ with final as (
     AND staging_stream.gender=dim_users.gender AND dim_location.locationKey=dim_users.locationKey
     LEFT JOIN {{ref('dim_songs')}}
     ON staging_stream.song_id=dim_songs.song_id 
-    LEFT JOIN {{ref('dim_artists')}}
-    ON staging_stream.artist_id=dim_artists.artistId
     LEFT JOIN {{ref("dim_datetime")}}
     ON to_date(to_timestamp(staging_stream.listen_timestamp))=dim_datetime.date
 )
 
-SELECT {{ dbt_utils.generate_surrogate_key(['locationKey', 'userKey', 'songKey', 'artistKey', 'dateKey','timestamp']) }} as eventId,
+SELECT {{ dbt_utils.generate_surrogate_key(['userKey', 'songKey', 'dateKey','timestamp']) }} as eventId,
 *
 FROM final

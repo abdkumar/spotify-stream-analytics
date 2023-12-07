@@ -133,4 +133,4 @@ This process includes:
 - **Data transformation**: Applying business logic and calculations to format and enrich data.
 - **Data partitioning**: Optimizing data organization for faster query performance
 
-![alt text](../images/data_modelling.png)
+![alt text](../images/data_modelling_image.png)

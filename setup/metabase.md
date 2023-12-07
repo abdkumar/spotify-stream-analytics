@@ -78,7 +78,7 @@ Click on New to create collection, Dashboard or questions <br>
 ![Alt text](../images/metabase_collection.png)
 
 # Creating a Question
-Go through [this link]((https://www.metabase.com/docs/latest/questions/query-builder/introduction)) to add questions/KPIs of your interest<br>
+Go through [this link](https://www.metabase.com/docs/latest/questions/query-builder/introduction) to add questions/KPIs of your interest<br>
 
 # Adding question to Dashboard
 Go through [this link](https://www.metabase.com/docs/latest/dashboards/introduction#adding-saved-questions-to-a-dashboard) to add saved questions to Dashboard.

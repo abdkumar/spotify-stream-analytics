@@ -18,5 +18,6 @@ dbt/spotify_project/package-lock.yml
 dbt/logs/
 dbt/spotify_project/.user.yml
 airflow/logs
+airflow/.env
 .vscode/settings.json
 .lh/

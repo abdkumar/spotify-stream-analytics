@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "3.79.0"
     }
+    databricks = {
+      source = "databricks/databricks"
+      version = "1.3.1"
+    }
   }
 }
 
@@ -23,6 +27,30 @@ provider "azurerm" {
 # }
 
 
+#############################################################################
+resource "azurerm_storage_account" "storage" {
+  name                     = var.adls_name
+  resource_group_name      = var.rg_name
+  location                 = var.rg_location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  
+  
+  
+  account_kind             = "StorageV2"
+  is_hns_enabled           = "true"
+}
+
+#############################################################################
+resource "azurerm_databricks_workspace" "azure_db" {
+  name                        = var.databricks_name
+  resource_group_name         = var.rg_name
+  location                    = var.rg_location
+  sku                         = "standard"
+  managed_resource_group_name = "${var.databricks_name}-workspace-rg"
+}
+
+#############################################################################
 ### Data source for KV - to retrive the secrets from KV, declaring the existing KV details.
 data "azurerm_key_vault" "kv_name" {
   name                = var.keyvault_name
@@ -42,23 +70,47 @@ data "azurerm_key_vault_secret" "virtual_machine_passwd" {
 
 #############################################################################
 
-######### 3. Azure Linux Virtual Machine deployment #########
-
+######### Azure Linux Virtual Machine deployment #########
 
 module "kafka_vm" {
   source               = "./terraform-modules/virtual_machine"
   rg_name              = var.rg_name
   location             = var.rg_location
-  vnet_name            = var.vnet_name
-  vnet_adddress        = var.vnet_address
-  subnet_nameList      = var.subnet_nameList
-  subnet_addressList   = var.subnet_addressList
-  pip_name             = var.pip_name
+  vnet_name            = var.kafka_vnet_name
+  vnet_adddress        = var.kafka_vnet_address
+  subnet_nameList      = var.kafka_subnet_nameList
+  subnet_addressList   = var.kafka_subnet_addressList
+  pip_name             = var.kafka_pip_name
   pip_allocation       = var.pip_allocation
-  vm_nic_name          = var.vm_nic_name
-  ip_configuration     = var.ip_configuration
-  nsg_name             = var.nsg_name
-  vm_name              = var.vm_name
+  vm_nic_name          = var.kafka_vm_nic_name
+  ip_configuration     = var.kafka_ip_configuration
+  nsg_name             = var.kafka_nsg_name
+  vm_name              = var.kafka_vm_name
+  vm_size              = var.vm_size
+  vm_username          = data.azurerm_key_vault_secret.virtual_machine_user.value
+  vm_password          = data.azurerm_key_vault_secret.virtual_machine_passwd.value
+  vm_image_publisher   = var.vm_image_publisher
+  vm_image_offer       = var.vm_image_offer
+  vm_image_sku         = var.vm_image_sku
+  vm_image_version     = var.vm_image_version
+  vm_os_disk_strg_type = var.vm_os_disk_strg_type
+  vm_os_disk_caching   = var.vm_os_disk_caching
+}
+
+module "spark_vm" {
+  source               = "./terraform-modules/virtual_machine"
+  rg_name              = var.rg_name
+  location             = var.rg_location
+  vnet_name            = var.spark_vnet_name
+  vnet_adddress        = var.spark_vnet_address
+  subnet_nameList      = var.spark_subnet_nameList
+  subnet_addressList   = var.spark_subnet_addressList
+  pip_name             = var.spark_pip_name
+  pip_allocation       = var.pip_allocation
+  vm_nic_name          = var.spark_vm_nic_name
+  ip_configuration     = var.spark_ip_configuration
+  nsg_name             = var.spark_nsg_name
+  vm_name              = var.spark_vm_name
   vm_size              = var.vm_size
   vm_username          = data.azurerm_key_vault_secret.virtual_machine_user.value
   vm_password          = data.azurerm_key_vault_secret.virtual_machine_passwd.value

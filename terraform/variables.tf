@@ -38,30 +38,92 @@ variable "keyvault_name" {
   type        = string
 }
 
+variable "adls_name" {
+  description = "Name of the Storage Account"
+  type        = string
+}
+
+variable "databricks_name" {
+  description = "Name of the Databricks Workspace"
+  type        = string
+}
+
 
 ### VNET Module Variables Start ###
 
-variable "vnet_name" {
+variable "kafka_vnet_name" {
   type    = string
   default = ""
 }
-variable "vnet_address" {
+variable "kafka_vnet_address" {
   type    = string
   default = ""
 }
-variable "subnet_nameList" {
+variable "kafka_subnet_nameList" {
   type    = list(string)
   default = [""]
 }
-variable "subnet_addressList" {
+variable "kafka_subnet_addressList" {
   type    = list(string)
   default = [""]
 }
+
+variable "spark_vnet_name" {
+  type    = string
+  default = ""
+}
+variable "spark_vnet_address" {
+  type    = string
+  default = ""
+}
+variable "spark_subnet_nameList" {
+  type    = list(string)
+  default = [""]
+}
+variable "spark_subnet_addressList" {
+  type    = list(string)
+  default = [""]
+}
+
 
 
 #### Variables for Linux Virtual Module defined here ####
 
-variable "pip_name" {
+# Kafka VM variables
+variable "kafka_pip_name" {
+  type        = string
+  default     = ""
+  description = "Name of the Public IP instance assigned to the Virtual Machine"
+}
+
+
+
+variable "kafka_vm_nic_name" {
+  type        = string
+  default     = ""
+  description = "Network Interface card name assigned to the Virtual Machine"
+}
+
+variable "kafka_nsg_name" {
+  type        = string
+  default     = ""
+  description = "Network Security Group name"
+
+}
+variable "kafka_ip_configuration" {
+  type        = string
+  default     = ""
+  description = "IP configuration name for the Virtual Machine."
+}
+variable "kafka_vm_name" {
+  type        = string
+  default     = ""
+  description = "Name of the Virtual Machine to be created."
+}
+
+# Spark VM variables
+
+variable "spark_pip_name" {
   type        = string
   default     = ""
   description = "Name of the Public IP instance assigned to the Virtual Machine"
@@ -75,28 +137,30 @@ variable "pip_allocation" {
   }
   description = "Public IP assignment type"
 }
-variable "vm_nic_name" {
+variable "spark_vm_nic_name" {
   type        = string
   default     = ""
   description = "Network Interface card name assigned to the Virtual Machine"
 }
 
-variable "nsg_name" {
+variable "spark_nsg_name" {
   type        = string
   default     = ""
   description = "Network Security Group name"
 
 }
-variable "ip_configuration" {
+variable "spark_ip_configuration" {
   type        = string
   default     = ""
   description = "IP configuration name for the Virtual Machine."
 }
-variable "vm_name" {
+variable "spark_vm_name" {
   type        = string
   default     = ""
   description = "Name of the Virtual Machine to be created."
 }
+
+# Common VM variables
 variable "vm_size" {
   type        = string
   default     = ""

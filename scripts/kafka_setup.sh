@@ -12,18 +12,18 @@ done
 
 
 # list topics
-docker container exec kafka-kafka-1 kafka-topics --list --bootstrap-server localhost:9092    
+docker container exec kafka-kafka-1 kafka-topics --list --bootstrap-server ${KAFKA_BROKER_ADDRESS:-localhost}:9092    
 
 # create topic
-docker container exec kafka-kafka-1 kafka-topics --create --topic spotify --partitions 1 --replication-factor 1 --bootstrap-server localhost:9092
+docker container exec kafka-kafka-1 kafka-topics --create --topic ${KAFKA_EVENTS_TOPIC:-sptofiy} --partitions 1 --replication-factor 1 --bootstrap-server ${KAFKA_ADDRESS:-localhost}:9092    
 
 # describe topics
-docker container exec kafka-kafka-1 kafka-topics --describe --bootstrap-server localhost:9092
+docker container exec kafka-kafka-1 kafka-topics --describe --bootstrap-server ${KAFKA_BROKER_ADDRESS:-localhost}:9092    
 
 # produce events
 # docker container exec -it kafka-kafka-1 /bin/bash
-# kafka-console-producer --topic spotify --bootstrap-server localhost:9092
+# kafka-console-producer --topic ${KAFKA_EVENTS_TOPIC:-sptofiy} --bootstrap-server ${KAFKA_BROKER_ADDRESS:-localhost}:9092
 
 
 # consume events
-# kafka-console-consumer --topic spotify --from-beginning --bootstrap-server localhost:9092
+# kafka-console-consumer --topic ${KAFKA_EVENTS_TOPIC:-sptofiy} --from-beginning --bootstrap-server ${KAFKA_BROKER_ADDRESS:-localhost}:9092

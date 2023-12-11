@@ -3,6 +3,7 @@
 #   location = var.location
 # }
 
+# Create virtual network
 resource "azurerm_virtual_network" "vnet" {
   name                = var.vnet_name
   address_space       = [var.vnet_adddress]
@@ -10,6 +11,7 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = var.rg_name
 }
 
+# Create subnet
 resource "azurerm_subnet" "subnet" {
   name                 = var.subnet_nameList[0]
   virtual_network_name = azurerm_virtual_network.vnet.name
@@ -17,6 +19,7 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes     = var.subnet_addressList
 }
 
+# Create public IPs
 resource "azurerm_public_ip" "public_ip" {
   name                = var.pip_name
   resource_group_name = var.rg_name
@@ -24,19 +27,22 @@ resource "azurerm_public_ip" "public_ip" {
   allocation_method   = var.pip_allocation
 }
 
+
+# Create network interface
 resource "azurerm_network_interface" "vm_nic" {
   name                = var.vm_nic_name
   resource_group_name = var.rg_name
   location            = var.location
 
   ip_configuration {
-    name                          = "internal"
+    name                          = var.ip_configuration
     subnet_id                     = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "Dynamic"
+    private_ip_address_allocation = var.pip_allocation
     public_ip_address_id          = azurerm_public_ip.public_ip.id
   }
 }
 
+# Create Network Security Group and rule
 resource "azurerm_network_security_group" "vm_nsg" {
   name                = var.nsg_name
   location            = var.location
@@ -54,6 +60,7 @@ resource "azurerm_network_security_group" "vm_nsg" {
   }
 }
 
+# Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "association" {
   network_interface_id      = azurerm_network_interface.vm_nic.id
   network_security_group_id = azurerm_network_security_group.vm_nsg.id

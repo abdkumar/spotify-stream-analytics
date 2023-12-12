@@ -55,19 +55,19 @@ Open the `terraform/terraform.tfvars` file & update the resource, keyvault varia
 ## Initialize Terraform:
 Open a terminal and navigate to your Terraform directory (`spotify-stream-analytics/terraform`). Run the following command to initialize Terraform:
 
-```
+```bash
 terraform init
 ```
 
 ## Plan Terraform Configuration:
 Run the following command to preview the changes Terraform will make:
-```
+```bash
 terraform plan -out "tfplan"
 ```
 ## Apply Terraform Configuration:
 Review the plan carefully. If everything looks good, run the following command to apply the configuration and create the resources:
 
-```
+```bash
 terraform apply "tfplan"
 ```
 # Verify Resources:
@@ -76,6 +76,6 @@ After applying the configuration, log in to the Azure portal and verify that you
 
 # Destroy Resources
 Convenient way to destroy all remote objects managed by a particular Terraform configuration
-```
+```bash
 terraform destroy
 ```

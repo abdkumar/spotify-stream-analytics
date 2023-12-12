@@ -11,7 +11,7 @@ load_dotenv()  # take environment variables from .env.
 SPOTIPY_CLIENT_ID = os.environ.get("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIPY_CLIENT_SECRET")
 
-KAFKA_BROKER_ADDRESS = os.environ.get("KAFKA_BROKER_ADDRESS")
+KAFKA_BROKER_ADDRESS = os.environ.get("KAFKA_BROKER_ADDRESS")+":9092"
 KAFKA_EVENTS_TOPIC = os.environ.get("KAFKA_EVENTS_TOPIC")
 
 # Data Generation Configurations -> config file

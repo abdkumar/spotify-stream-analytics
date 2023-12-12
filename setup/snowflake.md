@@ -8,7 +8,7 @@ Get Started with Snowflake
 
 # Create Staging Table to store raw event streams
 Using snowflake worksheet create database, schema and staging table
-```
+```sql
 ---> set Role Context
 USE ROLE accountadmin;
 
@@ -68,7 +68,7 @@ SELECT * FROM dev_spotify_data.test.staging_events;
 Refer: https://docs.snowflake.com/en/sql-reference/sql/create-stream
 
 Create a Snowlfke Stream on staging table to track the changes
-```
+```sql
 CREATE OR REPLACE STREAM dev_spotify_data.test.staging_stream ON TABLE dev_spotify_data.test.staging_events;
 
 SELECT * FROM dev_spotify_data.test.staging_stream;
@@ -84,7 +84,7 @@ b. **dev_role** - In order to facilitate the development and updates of dimensio
 
 <i>creating staging_role (for cdc):</i><br>
 give database, schema, tables and stage (databricks creates temporary stage to ingest records into snowflake table) access to stagingrole
-```
+```sql
 CREATE ROLE stagingrole;
 GRANT ROLE stagingrole TO USER kumar; # replace username here 
 GRANT USAGE ON WAREHOUSE compute_wh TO ROLE stagingrole;
@@ -98,7 +98,7 @@ GRANT CREATE STAGE ON SCHEMA dev_spotify_data.test TO ROLE stagingrole;
 
 <i>creating dev_role (for dbt transformations):</i> <br>
 give database, schema, tables and stream access to dev_role
-```
+```sql
 CREATE OR REPLACE ROLE dev_role;
 GRANT ROLE dev_role TO USER kumar; # replace username here 
 GRANT USAGE ON WAREHOUSE compute_wh TO ROLE dev_role;

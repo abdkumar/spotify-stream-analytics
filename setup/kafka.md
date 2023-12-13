@@ -44,30 +44,10 @@ docker ps
 ``` 
 **Note**: In case `docker ps` is not showing `kafka` and `zookeeper` containers. You should just stop all the containers with `docker compose down` and then rerun bash script.
 
-- The Kafka Control Center should be available on port 9021. Open and check if everything is working fine.
+
+- check topic created or not
+```bash
+docker container exec broker kafka-topics --list --bootstrap-server broker:29092
+```
 
 - Open another terminal session for the Kafka VM and start sending messages to your Kafka broker with python script
-
-- export spotify api
-- Install python packages
-```python
-python -m pip install -r ~/spotify-stream-analytics/requirements.txt
-```
-- change the directory 
-```bash
-cd ~/spotify-stream-analytics/data
-```
-
-- Update stream generation configuration `config.yml`
-
-- Run `main.py` which generates spotify stream events
-```python
-python main.py
-```
-
-SPOTIPY_CLIENT_ID = os.environ.get("SPOTIPY_CLIENT_ID")
-SPOTIPY_CLIENT_SECRET = os.environ.get("SPOTIPY_CLIENT_SECRET")
-
-
-
-

@@ -1,16 +1,16 @@
 # Data Generation Configurations
 
 # Number of users to generate data for
-N_USERS: 1000
+N_USERS: 10000
 
 # Number of samples to generate per day for each user
-N_SAMPLES_PER_DAY: 100
+N_SAMPLES_PER_DAY: 10000
 
 # Maximum number of songs to generate per day for each user
 MAX_SONGS_PER_DAY_PER_USER: 10
 
 # Start date for generating data (format: YYYY-MM-DD)
-DATA_START_DATE: '2023-01-01'
+DATA_START_DATE: '2023-02-01'
 
 # End date for generating data (format: YYYY-MM-DD)
 DATA_END_DATE: '2023-11-01'

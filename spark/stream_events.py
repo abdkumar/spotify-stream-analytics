@@ -25,7 +25,7 @@ ADLS_CONTAINER_NAME = os.environ.get("ADLS_CONTAINER_NAME")
 ADLS_FOLDER_PATH = os.environ.get("ADLS_FOLDER_PATH")
 
 KAFKA_TOPIC_NAME = os.environ.get("KAFKA_EVENTS_TOPIC")
-KAFKA_BOOTSTRAP_SERVER = os.environ.get("KAFKA_BROKER_ADDRESS")  # "localhost:9092"
+KAFKA_BOOTSTRAP_SERVER = os.environ.get("KAFKA_BROKER_ADDRESS")+":9092"  # "localhost:9092"
 
 CHECKPOINT_PATH = os.environ.get("CHECKPOINT_PATH")
 # OUTPUT_PATH = f"abfss://{ADLS_CONTAINER_NAME}@{ADLS_STORAGE_ACCOUNT_NAME}.dfs.core.windows.net/{ADLS_FOLDER_PATH}" # f string is not working properly

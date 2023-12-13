@@ -32,10 +32,12 @@ LOCATION_MAPPING_PATH = config['LOCATION_MAPPING_PATH']
 if __name__=="__main__":
     kafka_obj = KafkaStreamer(KAFKA_BROKER_ADDRESS)
     
+    # create spotify client and generate events
     spotify_obj = SpotifyUtils(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET)    
     songs_df = spotify_obj.generate_songs_data(PLAYLIST_URI)
     print("Generated Songs data")
     
+    # create randome users data
     users_df = UserUtils.generate_users_data(location_mapping_path=LOCATION_MAPPING_PATH, n_users=N_USERS)
     users_df.reset_index(drop=True, inplace=True)   
     dates_df = UserUtils.prepare_dates_df(DATA_START_DATE, DATA_END_DATE)

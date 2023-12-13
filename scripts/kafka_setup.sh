@@ -1,7 +1,4 @@
 # https://dev.to/cloudx/kafka-docker-net-core-101-part-1-b0h
-cd ~/spotify-stream-analytics/
-python3 -m pip install -r requirements.txt
-
 sudo service docker restart
 cd ~/spotify-stream-analytics/kafka/
 docker compose -f docker-compose.yml up -d

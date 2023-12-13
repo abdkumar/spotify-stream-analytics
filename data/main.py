@@ -49,6 +49,7 @@ if __name__=="__main__":
     print("Started generating events")
     # iterate every date to generate user*song interaction data
     for row in dates_df_list:
+        print(row)
         events = UserUtils.generate_user_song_interactions(users_df, songs_df, row['date'], row['start_ts'], row['end_ts'], N_USERS, MAX_SONGS_PER_DAY_PER_USER, N_SAMPLES_PER_DAY)
         kafka_obj.produce_dataframe(KAFKA_EVENTS_TOPIC, events)
     

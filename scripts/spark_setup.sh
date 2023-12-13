@@ -10,5 +10,7 @@ export PATH=$SPARK_HOME/bin:$PATH
 
 cd ~/spotify-stream-analytics
 
-pip3 install pyspark
-pip3 install -r requirements.txt
+python3 -m pip install pyspark
+python3 -m pip install -r requirements.txt
+
+export PATH=$PATH:/home/${USER}/.local/bin

@@ -12,7 +12,9 @@ ssh user@ipaddress
 - Clone git repo and cd into Kafka folder
 ```bash
 sudo apt update && \
-sudo apt install git && \
+sudo apt upgrade && \
+sudo apt-get install vim && \
+sudo apt-get install git && \
 git clone https://github.com/abdkumar/spotify-stream-analytics.git
 ```
 

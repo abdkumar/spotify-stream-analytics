@@ -1,6 +1,8 @@
+"""Schema for processing and storing streams
+"""
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, LongType, IntegerType
 
-events_schema = StructType(
+EVENTS_SCHEMA = StructType(
     [
         StructField("first_name", StringType(), False),
         StructField("last_name", StringType(), True),
@@ -33,7 +35,7 @@ events_schema = StructType(
 )
 
 
-processed_schema = StructType(
+PROCESSED_SCHEMA = StructType(
     [
         StructField("first_name", StringType(), True),
         StructField("last_name", StringType(), True),

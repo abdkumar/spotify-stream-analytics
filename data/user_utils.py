@@ -4,8 +4,19 @@ import indian_names
 
 
 class UserUtils:
+    """Utility class to generate randome users data"""
+
     @staticmethod
-    def generate_users_data(location_mapping_path: str, n_users: int):
+    def generate_users_data(location_mapping_path: str, n_users: int) -> pd.DataFrame:
+        """function to generate randome users demographics data.
+
+        Args:
+            location_mapping_path (str): Location mapping file path
+            n_users (int): Number of Users
+
+        Returns:
+            users_df (pd:DataFrame): Demographics data [first_name, last_name, gender & location details]
+        """
         users_df = pd.DataFrame()
         location_df = pd.read_csv(location_mapping_path)
 
@@ -26,6 +37,15 @@ class UserUtils:
 
     @staticmethod
     def prepare_dates_df(start_date: str, end_date: str) -> pd.DataFrame:
+        """Generats all dates b/w given range, start epoch & end epoch for each date.
+
+        Args:
+            start_date (str): start date "DD-MM-YYYY"
+            end_date (str): end date "DD-MM-YYYY"
+
+        Returns:
+            dates_df (pd.DataFrame): Epoch Data containing [date, start timestamp, end timestamp of the day]
+        """
         dates_df = pd.DataFrame()
         dates_df["date"] = pd.date_range(start_date, end_date)
         # get timestamp at the start of the day
@@ -46,7 +66,22 @@ class UserUtils:
         total_users: int,
         songs_per_day_per_user: int,
         users_per_day: int,
-    ):
+    ) -> pd.DataFrame:
+        """_summary_
+
+        Args:
+            users_df (pd.DataFrame): Users demographics data
+            songs_df (pd.DataFrame): Songs data
+            interaction_date (str): Date for which users*songs interaction to be generated
+            start_ts (int): Start epoch timestamp of the date
+            end_ts (int): End epoch timestamp of the date
+            total_users (int): Total users count
+            songs_per_day_per_user (int): Maximum No. of Songs that user listens per day
+            users_per_day (int): No. of active users per day
+
+        Returns:
+            events (pd.DataFrame): Listen Events data containing Users*Song streams
+        """
         # samples users
         user_idx = [
             random.sample(range(0, total_users), users_per_day)

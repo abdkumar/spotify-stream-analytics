@@ -1,61 +1,114 @@
 # Setup Databricks Workspace
-[Databricks](https://www.databricks.com/) is a unified, open analytics platform that empowers organizations to accelerate innovation through data. It provides a comprehensive suite of tools and services for:
+This document outlines the process for incrementally loading data from a Delta Lake into a Snowflake staging table using Databricks and Airflow. We'll achieve this by:
 
-- Data Engineering: Simplify data ingestion, transformation, and orchestration with a unified platform for building data pipelines.
-- Data Warehousing: Build scalable and secure data warehouses to support diverse analytical workloads.
-- Data Science & Machine Learning: Leverage a unified platform for data exploration, model development, deployment, and management.
-- Business Intelligence & Data Visualization: Empower users to explore and analyze data through interactive dashboards and reports.
+- **Creating a Databricks notebook** that reads changed records/new records from the Delta Lake, applies transformations, and writes it to the Snowflake staging table.
+- **Orchestrating the notebook** as a Databricks job that runs hourly through Airflow.
+Leveraging Airflow's scheduler to automate the data pipeline.
+This framework ensures automated and reliable ingestion of fresh data from your Delta Lake to Snowflake for further analysis and processing.
+
+# Secure Databricks Access for Airflow with Key Vault
+
+- **Generate Databricks Token**: Login to your Databricks workspace, go to `Settings > Access Control > Personal Access Tokens` and create a token. Copy and securely store this token! You won't be able to view it again after generating.
+- **Create Key Vault Secret**: In Azure Key Vault, create a secret named `airflow-connections-databricks-secret` with value: `databricks://@<workspace-host>?token=<api-token>`.
+Use Secret in Airflow: Within your Airflow DAG, reference the secret name for the Databricks connection URI.
+
+Example: `databricks://@adb-123455151858115484.4.azuredatabricks.net?token=dapi11kkededsad23b3bc09d14dc5mdakmdwqjdf2ijf-3`
+
+This safely stores your API token in Key Vault and keeps your Airflow code clean and secure.
+
+<i>Remember: Store the Databricks token securely outside of your browser or Airflow configuration files. Consider password managers or other secure credential management solutions.</i>
+
+
 
 # Setup Secret Scope in Databricks
 Managing secrets begins with creating a secret scope. A secret scope is collection of secrets identified by a name.
 
-To ensure secure and controlled access to sensitive credentials, we leverage Azure Key Vault as our primary storage. To integrate this with Databricks, we follow a two-step process:
+To ensure secure and controlled access to sensitive credentials, we leverage Azure Key Vault as our primary storage. To integrate this with Databricks, we should've assigned permission to databricks and enabled Public Access in Network Settings of KeyVault.
 
-- Granting Permission: Firstly, we authorize our Databricks application to access the Azure Key Vault. This ensures secure access and prevents unauthorized data exposure.
-- Creating a Secret Scope: Utilizing the Azure Key Vault resource ID and DNS URL, we establish a "secret scope" within Databricks. This serves as a dedicated virtual vault within Databricks, mapping the relevant Azure Key Vault credentials for convenient access and management.
+**[Check the steps](https://github.com/abdkumar/spotify-stream-analytics/blob/main/setup/azure.md)**
 
-1. Make sure Keyvault Access configuration is set to `Vault access policy`
-![](../images/databricks/keyvault_conf.png)
+Go to `https://<databricks-instance>#secrets/createScope`. This URL is case sensitive; scope in createScope must be uppercase. 
 
-2. Go to `Access policies` and click on `Create` to create policy. Select `Get`, `List` policy under `Secret Permissions`
-![](../images/databricks/secret_policy.png) <br>
-
-3. Change Network Settings to allow publi network access
-![](../images/databricks/keyvault_networking.png) <br>
-
-4. Serach `AzureDatabricks` service principal<br>
-![](../images/databricks/keyvault_principal.png)
-
-5. Go to `https://<databricks-instance>#secrets/createScope`. This URL is case sensitive; scope in createScope must be uppercase.
-![](https://learn.microsoft.com/en-us/azure/databricks/_static/images/secrets/azure-kv-scope.png)
-
-Use the Manage Principal drop-down to specify whether All Users have MANAGE permission for this secret scope or only the Creator of the secret scope (that is to say, you).
+**Create scope with name `spotify-secret-scope`**
 
 Read more about secret scope settings [here](https://learn.microsoft.com/en-us/azure/databricks/security/secrets/secret-scopes)
 
-# Create Databricks Job
-1. Access the Workflows section:
+# Required Secrets in KeyVault
 
-- Sign in to your Databricks workspace.
-- In the left-hand navigation menu, click on "Jobs" under the "Workflows" section.<br>
-![](../images/databricks/workflow.png)
+| Variable | Description | Example Value |
+|---|---|---|
+| `sfURL` | URL of your Snowflake account | https://<YOUR ACCOUNT\>.snowflakecomputing.com |
+| `sfUser` | Username for your Snowflake account | <YOUR_USER_NAME> |
+| `sfPassword` | Password for your Snowflake account | <YOUR_SNOWFLAKE_PASSWORD> |
+| `sfSchema` | Name of the schema withina given database you want to access | test |
+| `sfDatabase` | Name of the database you want to access | dev_spotify_data |
+| `sfWarehouse` | Name of the warehouse you want to use | my_warehouse |
+| `sfRole` | Name of the role to assume for access control | stagingrole |
+| `dbtable` | Name of the Snowflake table you want to interact with | staging_events |
+| `adls-account-key` | Accout Key of ADLS Storage Account| <ACCOUNT KEY\> |
+| `adls-account-name` | ADLS Storage Account Name| <ACCOUNT NAME\> |
+| `adls-container-name` | Container Name where spark processed delta lake is stored | <CONTAINER NAME\> |
+| `adls-folder-path` | Give the folder path where spark processed delta lake is stored| <FOLDER PATH\> |
 
-2. Upload the Databricks notebook:
 
-- Click on the "Create Job" button.
-- In the job creation wizard, select "Import" as the source for your notebook.
-- Click on "Browse" and locate the .dbc file you want to import.
-- Choose the desired destination folder within your workspace.
-- Click "Import" to upload the notebook file.
+Make sure the Snowflake configuration is matched with **[Snowflake Workspace](https://github.com/abdkumar/spotify-stream-analytics/blob/main/setup/snowflake.md)**
+
+
+Make sure the ADLS configuration is matched with **[Spark Streaming Configuration](https://github.com/abdkumar/spotify-stream-analytics/blob/main/setup/spark.md)**
+
+
+# Create a Databricks Job
+We'll cover uploading the notebook, creating a single-node cluster, reviewing the code, and launching the job.
+
+### 1. Upload the Notebook:
+
+1. Access your Databricks workspace.
+2. Navigate to the Workspace pane and click on Notebooks.
+3. Click on Import.
+4. Select From Git URL and paste the URL of the notebook: https://github.com/abdkumar/spotify-stream-analytics/tree/main/cdc
+5. Select the .dbc file and click Import.
+
+The notebook will be imported into your Databricks workspace.
+
+### 2. Create a Cluster:
+
+1. Click on Clusters in the Workspace pane.
+2. Click on Create Cluster.
+3. Choose a Cluster Name and select Single Node.
+4. Under Node Type, choose StandardDS3_v2 (14 cores, 320 GB RAM).
+5. Leave the default options for the remaining settings and click Create Cluster.
+
+A single-node cluster with the specified resources will be created for running your job.
+
+### 3. Review and create the job:
+ - Review the job details, including the notebook, cluster configuration, and schedule settings.
+ - If everything is correct, click "Create" to save the job.
+
 ![](../images/databricks/job_details.png)
 
-3. Configure the Job cluster
 ![](../images/databricks/job_cluster_config.png)
 
-4. Review and create the job:
-
-- Review the job details, including the notebook, cluster configuration, and schedule settings.
-- If everything is correct, click "Create" to save the job.
 
 
+## Delta Lake Incremental Data Processing with Databricks and Airflow
+This section explains the key steps within your Databricks notebook for incrementally loading new data from a Delta Lake to a Snowflake staging table:
 
+**1. Reading Delta Table and Identifying New Data:**
+- Import the Delta Package: Utilize the delta package within your Python code to access and manipulate the Delta table.
+- Checkpoint File Check:
+  - Check for the existence of a checkpoint file. This file stores the timestamp of the last processed data batch.
+  - If the file exists, read the timestamp from it.
+  - If the file doesn't exist, it's the first run:
+- Find the maximum commit timestamp from the Delta table history.
+- Set this timestamp as the `LAST_READ_TIMESTAMP` variable.
+
+**2. Incremental Data Processing:**
+
+- Read Delta Table: Utilize the spark.read.format("delta") command to read the Delta table, specifying the startTimestamp parameter.
+- Set Start Timestamp: Use the `LAST_READ_TIMESTAMP` as the startTimestamp value. This ensures you only read data committed after the last successful run.
+- Data Processing: Apply your desired transformations and cleaning operations to the DataFrame containing the new data.
+
+**3. Writing to Snowflake and Updating Checkpoint:**
+
+- Write to Snowflake: Write the processed DataFrame to the Snowflake staging table using the spark.write.format("snowflake") command.
+- Update Checkpoint File: Write the current timestamp (indicating the end of the processed data batch) to the `checkpoint` file. This timestamp will be used as the startTimestamp for the next run.

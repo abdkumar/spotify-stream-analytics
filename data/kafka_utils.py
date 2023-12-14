@@ -13,6 +13,7 @@ class KafkaStreamer:
 
     def produce_dataframe(self, topic: str, dataframe: pd.DataFrame) -> bool:
         for row in dataframe.itertuples(index=False):
+            print(row)
             key_bytes = str(time.time()).encode("utf-8")
 
             self.producer.send(topic, value=row._asdict(), key=key_bytes)

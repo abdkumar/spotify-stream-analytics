@@ -1,17 +1,19 @@
 # Reference: https://denisecase.github.io/starting-spark/
+"""Script for processing kafka streams and saving it to Azure ADLS gen2
+"""
 import os
 from typing import List, Optional
+from dotenv import load_dotenv
+import pyspark.sql.functions as F
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import col, year, month, dayofmonth, hour
-import pyspark.sql.functions as F
 from pyspark.sql.streaming import DataStreamReader
-from delta.tables import DeltaTable
 from pyspark.sql.types import StructType
-from dotenv import load_dotenv
+from delta.tables import DeltaTable
 
-from schema import events_schema, processed_schema
+from .schema import EVENTS_SCHEMA, PROCESSED_SCHEMA
 
-
+# load env variables
 load_dotenv()
 # https://github.com/delta-io/delta/issues/593#issuecomment-816678840
 os.environ["PYSPARK_PIN_THREAD"] = "true"
@@ -23,14 +25,20 @@ ADLS_STORAGE_ACCOUNT_NAME = os.environ.get("ADLS_STORAGE_ACCOUNT_NAME")
 ADLS_ACCOUNT_KEY = os.environ.get("ADLS_ACCOUNT_KEY")
 ADLS_CONTAINER_NAME = os.environ.get("ADLS_CONTAINER_NAME")
 ADLS_FOLDER_PATH = os.environ.get("ADLS_FOLDER_PATH")
+OUTPUT_PATH = (
+    f"abfss://{ADLS_CONTAINER_NAME}@{ADLS_STORAGE_ACCOUNT_NAME}.dfs.core.windows.net/"
+    + ADLS_FOLDER_PATH
+)
 
 KAFKA_TOPIC_NAME = os.environ.get("KAFKA_EVENTS_TOPIC")
-KAFKA_BOOTSTRAP_SERVER = os.environ.get("KAFKA_BROKER_ADDRESS")+":9092"  # "localhost:9092"
+KAFKA_BOOTSTRAP_SERVER = (
+    os.environ.get("KAFKA_BROKER_ADDRESS") + ":" + os.environ.get("KAFKA_BROKER_PORT")
+) # "localhost:9092"
 
-CHECKPOINT_PATH = os.environ.get("CHECKPOINT_PATH")
-# OUTPUT_PATH = f"abfss://{ADLS_CONTAINER_NAME}@{ADLS_STORAGE_ACCOUNT_NAME}.dfs.core.windows.net/{ADLS_FOLDER_PATH}" # f string is not working properly
-OUTPUT_PATH = f"abfss://{ADLS_CONTAINER_NAME}@{ADLS_STORAGE_ACCOUNT_NAME}.dfs.core.windows.net/" + ADLS_FOLDER_PATH
+CHECKPOINT_PATH = "./checkpoint"
 
+print(KAFKA_BOOTSTRAP_SERVER)
+print(KAFKA_TOPIC_NAME)
 
 # Required Spark  packages
 PACKAGES = [
@@ -42,7 +50,6 @@ PACKAGES = [
     "org.apache.hadoop:hadoop-common:3.3.6",
 ]
 
-print(KAFKA_TOPIC_NAME)
 
 def create_or_get_spark(
     app_name: str, packages: List[str], cluster_manager="local[*]"
@@ -66,7 +73,7 @@ def create_or_get_spark(
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
         .config(
             "spark.sql.catalog.spark_catalog",
-            "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+            "org.apache.spark.sql.delta.catalog.DeltaCatalog",
         )
         .config(
             "fs.abfss.impl", "org.apache.hadoop.fs.azurebfs.SecureAzureBlobFileSystem"
@@ -153,8 +160,8 @@ def create_empty_delta_table(
     spark: SparkSession,
     schema: StructType,
     path: str,
-    partition_cols: Optional[List[str]]=None,
-    enable_cdc: Optional[bool]=False,
+    partition_cols: Optional[List[str]] = None,
+    enable_cdc: Optional[bool] = False,
 ):
     """_summary_
 
@@ -166,19 +173,23 @@ def create_empty_delta_table(
         enable_cdc (bool): _description_
     """
     if not DeltaTable.isDeltaTable(spark, path):
-        custom_builder = DeltaTable.createIfNotExists(spark).location(path).addColumns(schema)
+        custom_builder = (
+            DeltaTable.createIfNotExists(spark).location(path).addColumns(schema)
+        )
         if partition_cols:
             custom_builder = custom_builder.partitionedBy(partition_cols)
         if enable_cdc:
-            custom_builder =custom_builder.property("delta.enableChangeDataFeed", "true")
-        
+            custom_builder = custom_builder.property(
+                "delta.enableChangeDataFeed", "true"
+            )
+
         table = custom_builder.execute()
         print("Delta table created")
         return table
     else:
         print("Delta Table already exists")
         return None
-        
+
 
 def create_write_stream(
     df: DataFrame, checkpoint_path: str, output_path: str, trigger: str = "2 minutes"
@@ -204,6 +215,7 @@ def create_write_stream(
     )
     return stream
 
+
 # ===================================================================================
 #                           MAIN ENTRYPOINT
 # ===================================================================================
@@ -215,7 +227,7 @@ spark = create_or_get_spark(
 # setup spark-azure connection
 spark.conf.set(
     f"fs.azure.account.key.{ADLS_STORAGE_ACCOUNT_NAME}.dfs.core.windows.net",
-    ADLS_ACCOUNT_KEY
+    ADLS_ACCOUNT_KEY,
 )
 print("Spark Session Created")
 
@@ -224,23 +236,23 @@ stream_df = create_read_stream(spark, KAFKA_BOOTSTRAP_SERVER, KAFKA_TOPIC_NAME)
 print("Read Stream Created")
 
 # process stream events
-stream_df = process_stream(stream_df, events_schema)
+stream_df = process_stream(stream_df, EVENTS_SCHEMA)
 print("Stream is Processed")
 
 # Create empty delta table at destination & enable CDC
 empty_table = create_empty_delta_table(
     spark=spark,
-    schema=processed_schema,
+    schema=PROCESSED_SCHEMA,
     path=OUTPUT_PATH,
     partition_cols=["month", "day", "hour"],
-    enable_cdc=True
+    enable_cdc=True,
 )
 
 if DeltaTable.isDeltaTable(spark, OUTPUT_PATH):
     print("it is a delta table")
 else:
     print("it is not a delta table")
-    
+
 # create write stream object
 write_stream = create_write_stream(
     stream_df, CHECKPOINT_PATH, OUTPUT_PATH, trigger="2 minutes"

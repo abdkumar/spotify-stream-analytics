@@ -4,17 +4,26 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
 
-
 class SpotifyUtils:
+    """Utility class getting data using spotify api and generating songs data
+    
+    Args:
+        client_id (str): Client Id of Spotify API
+        client_secret (str): Client Secret of Spotify API
     """
-    #TODO: Add docstring
-    """
-
     def __init__(self, client_id, client_secret) -> None:
         self.client = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(
             client_id=client_id, client_secret=client_secret))
 
     def get_top_tracks_by_artist(self, artist_id: str) -> pd.DataFrame:
+        """Get top 10 trakcs for every artist
+
+        Args:
+            artist_id (str): ID of the artist on spotify
+
+        Returns:
+            tracks_df (pd.DataFrame): Tracks data containing top song, album name, duration etc of an artist
+        """
         track_details = {"song_title": [], "album_name": [],
                          "release_date": [], "duration_ms": [], "song_id": []}
         tracks = self.client.artist_top_tracks(artist_id)["tracks"]
@@ -32,6 +41,14 @@ class SpotifyUtils:
         return tracks_df
     
     def get_artists_from_playlist(self, playlist_uri: List[str]) -> pd.DataFrame:
+        """Get unique artists from the list of spotify playlist uri's
+
+        Args:
+            playlist_uri (List[str]): List of spotify playlist uri
+
+        Returns:
+            df (pd.DataFrame): Data containing name & id of the artists
+        """
         selected_artists = {"artist_name": [], "artist_id": []}
         play_list_items = []
         for uri in playlist_uri:
@@ -46,6 +63,14 @@ class SpotifyUtils:
         return df
 
     def get_audio_features(self, track_ids: List[str]) -> pd.DataFrame:
+        """Get audio features for every tack ids
+
+        Args:
+            track_ids (List[str]): List of spotify track IDs
+
+        Returns:
+            df (pd.DataFrame): Data containing audio features
+        """
         batch_size = 90
         required_features = ['danceability', 'energy', 'key', 'loudness', 'mode', 'speechiness',
                             'acousticness', 'instrumentalness', 'liveness', 'valence', 'tempo']
@@ -63,6 +88,14 @@ class SpotifyUtils:
         return df
 
     def generate_songs_data(self, playlist_uri: List[str]) -> pd.DataFrame:
+        """Generate song data
+
+        Args:
+            playlist_uri (List[str]): List of spotify playlist uri
+
+        Returns:
+            song_df (pd.DataFrame): Songs data containing song id, artist id and audio features
+        """
     
         # get artists from list of playlists provided
         artist_df = self.get_artists_from_playlist(playlist_uri)
@@ -77,6 +110,7 @@ class SpotifyUtils:
         audio_featuress_df = self.get_audio_features(unique_song_ids)
         audio_featuress_df["song_id"]  = unique_song_ids
         
+        # merge tracks data & audio features
         song_df = tracks_df.merge(audio_featuress_df, on="song_id")
         song_df['release_date'] = pd.to_datetime(song_df['release_date'], format="mixed")
         

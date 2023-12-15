@@ -40,4 +40,6 @@ using light weight airflow
 https://medium.com/@alexroperez4/docker-airflow-gcp-80ef9280fbd3
 
 
+# docker proxy setup
 
+https://medium.com/@benjcabalonajr_56579/using-docker-operator-on-airflow-running-inside-a-docker-container-7df5286daaa5

@@ -34,6 +34,7 @@ creating a Spotify API account and obtaining your client ID and secret
 
 ## Setting up of Environment Variables
 Cnfiguring Kafka connection details in a `.env` file for producing Spotify stream events. <br>
+
 *NOTE: For reference and verification, you can consult the `spotify-stream-analytics/kafka/docker-compose.yml` file. This file typically defines the configuration parameters used for the Kafka broker within the Docker container environment.*
 
 **1. Required Environment Variables:**

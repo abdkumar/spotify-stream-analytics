@@ -6,19 +6,6 @@ This document outlines the process for incrementally loading data from a Delta L
 Leveraging Airflow's scheduler to automate the data pipeline.
 This framework ensures automated and reliable ingestion of fresh data from your Delta Lake to Snowflake for further analysis and processing.
 
-# Secure Databricks Access for Airflow with Key Vault
-
-- **Generate Databricks Token**: Login to your Databricks workspace, go to `Settings > Access Control > Personal Access Tokens` and create a token. Copy and securely store this token! You won't be able to view it again after generating.
-- **Create Key Vault Secret**: In Azure Key Vault, create a secret named `airflow-connections-databricks-secret` with value: `databricks://@<workspace-host>?token=<api-token>`.
-Use Secret in Airflow: Within your Airflow DAG, reference the secret name for the Databricks connection URI.
-
-Example: `databricks://@adb-123455151858115484.4.azuredatabricks.net?token=dapi11kkededsad23b3bc09d14dc5mdakmdwqjdf2ijf-3`
-
-This safely stores your API token in Key Vault and keeps your Airflow code clean and secure.
-
-<i>Remember: Store the Databricks token securely outside of your browser or Airflow configuration files. Consider password managers or other secure credential management solutions.</i>
-
-
 
 # Setup Secret Scope in Databricks
 Managing secrets begins with creating a secret scope. A secret scope is collection of secrets identified by a name.
@@ -90,7 +77,7 @@ A single-node cluster with the specified resources will be created for running y
 
 
 
-## Delta Lake Incremental Data Processing with Databricks and Airflow
+## Delta Lake Incremental Data Processing
 This section explains the key steps within your Databricks notebook for incrementally loading new data from a Delta Lake to a Snowflake staging table:
 
 **1. Reading Delta Table and Identifying New Data:**
@@ -112,3 +99,21 @@ This section explains the key steps within your Databricks notebook for incremen
 
 - Write to Snowflake: Write the processed DataFrame to the Snowflake staging table using the spark.write.format("snowflake") command.
 - Update Checkpoint File: Write the current timestamp (indicating the end of the processed data batch) to the `checkpoint` file. This timestamp will be used as the startTimestamp for the next run.
+
+
+# Secure Databricks Access for Airflow with Key Vault
+
+- **Generate Databricks Token** Log in to your Databricks workspace, go to `Settings > Access Control > Personal Access Tokens` and create a token. Copy and securely store this token! You won't be able to view it again after generating.
+
+- **Create Key Vault Secrets**:
+  - **Databricks Access**: In Key Vault, create a secret named `airflow-connections-databricks-secret` with value: `databricks://@<workspace-host>?token=<api-token>`.
+  
+    Example: `databricks://@adb-123455151858115484.4.azuredatabricks.net?token=dapi11kkededsad23b3bc09d14dc5mdakmdwqjdf2ijf-3`
+  - **Databricks Job ID**: After creating your Databricks job, retrieve its ID and create another secret named `airflow-variables-databricks-job-secret` with the Job ID as its value.
+
+- **Use Secrets in Airflow:**
+  - **Databricks Connection**: Reference the airflow-connections-databricks-secret for the Databricks connection URI.
+  - **Databricks Job ID**: Access the job ID from the airflow-variables-databricks-job-secret within your Airflow DAG for further processing or monitoring.
+
+<i>This safely stores both your Databricks access token and job ID in Key Vault, keeping your Airflow code clean and secure. Enjoy automated dataflows with easily accessible job information!</i>
+

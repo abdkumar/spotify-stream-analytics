@@ -21,3 +21,5 @@ airflow/logs
 airflow/.env
 .vscode/settings.json
 .lh/
+airflow/dags/my_dbt.py
+airflow/dags/test_databricks.py

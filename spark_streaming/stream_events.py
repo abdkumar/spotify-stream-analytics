@@ -11,7 +11,7 @@ from pyspark.sql.streaming import DataStreamReader
 from pyspark.sql.types import StructType
 from delta.tables import DeltaTable
 
-from .schema import EVENTS_SCHEMA, PROCESSED_SCHEMA
+from schema import EVENTS_SCHEMA, PROCESSED_SCHEMA
 
 # load env variables
 load_dotenv()

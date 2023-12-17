@@ -25,6 +25,7 @@ Read more about secret scope settings [here](https://learn.microsoft.com/en-us/a
 | Variable | Description | Example Value |
 |---|---|---|
 | `sfURL` | URL of your Snowflake account | https://<YOUR ACCOUNT\>.snowflakecomputing.com |
+| `sfAccount` | Snowflake Account Name part from snowflake URL | <YOUR ACCOUNT\> |
 | `sfUser` | Username for your Snowflake account | <YOUR_USER_NAME> |
 | `sfPassword` | Password for your Snowflake account | <YOUR_SNOWFLAKE_PASSWORD> |
 | `sfSchema` | Name of the schema withina given database you want to access | test |
@@ -109,11 +110,11 @@ This section explains the key steps within your Databricks notebook for incremen
   - **Databricks Access**: In Key Vault, create a secret named `airflow-connections-databricks-secret` with value: `databricks://@<workspace-host>?token=<api-token>`.
   
     Example: `databricks://@adb-123455151858115484.4.azuredatabricks.net?token=dapi11kkededsad23b3bc09d14dc5mdakmdwqjdf2ijf-3`
-  - **Databricks Job ID**: After creating your Databricks job, retrieve its ID and create another secret named `airflow-variables-databricks-job-secret` with the Job ID as its value.
+  - **Databricks Job ID**: After creating your Databricks job, retrieve its ID and create another secret named `databricksJobID` with the Job ID as its value.
 
 - **Use Secrets in Airflow:**
-  - **Databricks Connection**: Reference the airflow-connections-databricks-secret for the Databricks connection URI.
-  - **Databricks Job ID**: Access the job ID from the airflow-variables-databricks-job-secret within your Airflow DAG for further processing or monitoring.
+  - **Databricks Connection**: Reference the `databricks-secret` (prefix is automatically removed as we have set secret backend kwargs)for the Databricks connection URI.
+  - **Databricks Job ID**: Access the job ID from the `databricksJobID` within your Airflow DAG for further processing or monitoring.
 
 <i>This safely stores both your Databricks access token and job ID in Key Vault, keeping your Airflow code clean and secure. Enjoy automated dataflows with easily accessible job information!</i>
 

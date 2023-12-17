@@ -61,7 +61,12 @@ x-airflow-common:
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
-    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
+    AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
+    AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
+    AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+    AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
+    AIRFLOW__SECRETS__BACKEND: ${AIRFLOW__SECRETS__BACKEND}
+    AIRFLOW__SECRETS__BACKEND_KWARGS: ${AIRFLOW__SECRETS__BACKEND_KWARGS}
     # yamllint disable rule:line-length
     # Use simple http server on scheduler for health checks
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server

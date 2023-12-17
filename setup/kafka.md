@@ -4,7 +4,7 @@ We will setup Kafka and data generator in a dedicated compute instance. Python D
 ![](../images/drawio/kafka_architecture.png)
 
 - Establish SSH connection
-SSH into the VM using username and public ip address
+SSH into the VM (`kafka-vm`) using username and public ip address
 ```bash
 ssh user@ipaddress
 ```

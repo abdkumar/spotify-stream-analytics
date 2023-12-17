@@ -68,19 +68,19 @@ variable "kafka_subnet_addressList" {
   default = [""]
 }
 
-variable "spark_vnet_name" {
+variable "airflow_vnet_name" {
   type    = string
   default = ""
 }
-variable "spark_vnet_address" {
+variable "airflow_vnet_address" {
   type    = string
   default = ""
 }
-variable "spark_subnet_nameList" {
+variable "airflow_subnet_nameList" {
   type    = list(string)
   default = [""]
 }
-variable "spark_subnet_addressList" {
+variable "airflow_subnet_addressList" {
   type    = list(string)
   default = [""]
 }
@@ -121,9 +121,9 @@ variable "kafka_vm_name" {
   description = "Name of the Virtual Machine to be created."
 }
 
-# Spark VM variables
+# airflow VM variables
 
-variable "spark_pip_name" {
+variable "airflow_pip_name" {
   type        = string
   default     = ""
   description = "Name of the Public IP instance assigned to the Virtual Machine"
@@ -137,24 +137,24 @@ variable "pip_allocation" {
   }
   description = "Public IP assignment type"
 }
-variable "spark_vm_nic_name" {
+variable "airflow_vm_nic_name" {
   type        = string
   default     = ""
   description = "Network Interface card name assigned to the Virtual Machine"
 }
 
-variable "spark_nsg_name" {
+variable "airflow_nsg_name" {
   type        = string
   default     = ""
   description = "Network Security Group name"
 
 }
-variable "spark_ip_configuration" {
+variable "airflow_ip_configuration" {
   type        = string
   default     = ""
   description = "IP configuration name for the Virtual Machine."
 }
-variable "spark_vm_name" {
+variable "airflow_vm_name" {
   type        = string
   default     = ""
   description = "Name of the Virtual Machine to be created."

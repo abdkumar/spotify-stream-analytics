@@ -97,20 +97,20 @@ module "kafka_vm" {
   vm_os_disk_caching   = var.vm_os_disk_caching
 }
 
-module "spark_vm" {
+module "airflow_vm" {
   source               = "./terraform-modules/virtual_machine"
   rg_name              = var.rg_name
   location             = var.rg_location
-  vnet_name            = var.spark_vnet_name
-  vnet_adddress        = var.spark_vnet_address
-  subnet_nameList      = var.spark_subnet_nameList
-  subnet_addressList   = var.spark_subnet_addressList
-  pip_name             = var.spark_pip_name
+  vnet_name            = var.airflow_vnet_name
+  vnet_adddress        = var.airflow_vnet_address
+  subnet_nameList      = var.airflow_subnet_nameList
+  subnet_addressList   = var.airflow_subnet_addressList
+  pip_name             = var.airflow_pip_name
   pip_allocation       = var.pip_allocation
-  vm_nic_name          = var.spark_vm_nic_name
-  ip_configuration     = var.spark_ip_configuration
-  nsg_name             = var.spark_nsg_name
-  vm_name              = var.spark_vm_name
+  vm_nic_name          = var.airflow_vm_nic_name
+  ip_configuration     = var.airflow_ip_configuration
+  nsg_name             = var.airflow_nsg_name
+  vm_name              = var.airflow_vm_name
   vm_size              = var.vm_size
   vm_username          = data.azurerm_key_vault_secret.virtual_machine_user.value
   vm_password          = data.azurerm_key_vault_secret.virtual_machine_passwd.value

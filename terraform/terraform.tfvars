@@ -45,14 +45,14 @@ kafka_pip_name           = "kafka-vm-pip"
 
 
 #=====================================================================================
-#               SPARK - VM - CONFIGURATION
+#               airflow - VM - CONFIGURATION
 #=====================================================================================
-spark_vm_nic_name        = "spark-vm-nic"
-spark_ip_configuration   = "spark_ip_config"
-spark_nsg_name           = "spark-vm-nsg"
-spark_vm_name            = "spark-vm"
-spark_vnet_name          = "spark-vm-vnet"
-spark_vnet_address       = "10.0.0.0/16"
-spark_subnet_nameList    = ["spark-vm-snet"]
-spark_subnet_addressList = ["10.0.1.0/24"]
-spark_pip_name           = "spark-vm-pip"
+airflow_vm_nic_name        = "airflow-vm-nic"
+airflow_ip_configuration   = "airflow_ip_config"
+airflow_nsg_name           = "airflow-vm-nsg"
+airflow_vm_name            = "airflow-vm"
+airflow_vnet_name          = "airflow-vm-vnet"
+airflow_vnet_address       = "10.0.0.0/16"
+airflow_subnet_nameList    = ["airflow-vm-snet"]
+airflow_subnet_addressList = ["10.0.1.0/24"]
+airflow_pip_name           = "airflow-vm-pip"

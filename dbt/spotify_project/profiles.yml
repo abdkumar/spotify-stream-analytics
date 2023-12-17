@@ -2,13 +2,13 @@ spotify_project:
   outputs:
     dev:
       account: "{{ env_var('SNOWFLAKE_ACCOUNT')}}"
-      database: dev_spotify_data
+      database: "{{ env_var('SNOWFLAKE_DATABASE')}}"
       password: "{{ env_var('SNOWFLAKE_PASSWORD')}}"
-      role: dev_role
-      schema: test
+      role: "{{ env_var('SNOWFLAKE_ROLE')}}"
+      schema: "{{ env_var('SNOWFLAKE_SCHEMA')}}"
       threads: 2
       type: snowflake
-      user: abdkumar
-      warehouse: compute_wh
+      user: "{{ env_var('SNOWFLAKE_USERNAME')}}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE')}}"
       timeout_seconds: 300
   target: dev

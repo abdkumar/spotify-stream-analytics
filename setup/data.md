@@ -3,6 +3,12 @@
 This document outlines the process of generating and publishing simulated Spotify stream events using Kafka, powered by Python libraries and driven by a configuration file.
 
 ## Installing packages
+Establish SSH connection
+SSH into the VM (`kafka-vm`) using username and public ip address
+```bash
+ssh user@ipaddress
+```
+
 Configure Spark and install Python dependencies with requirements.txt.
 ```bash
 bash  ~/spotify-stream-analytics/scripts/spark_setup.sh

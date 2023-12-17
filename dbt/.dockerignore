@@ -1,0 +1,5 @@
+spotify_project/target/
+spotify_project/dbt_packages/
+spotify_project/logs/
+spotify_project/package-lock.yml
+spotify_project/.user.yml

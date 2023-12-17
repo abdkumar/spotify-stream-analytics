@@ -54,7 +54,7 @@ This section details how to launch your Spark streaming job for processing Spoti
 ### 1. Verify Public IP and SSH Connection:
 
 - Confirm the updated public IP: Check your cloud provider's console or prior setup instructions to find the most recent public IP address assigned to the Kafka VM.
-- Establish an SSH connection: Use a terminal application and your SSH key to connect to the VM using the confirmed public IP address.
+- Establish an SSH connection: Use a terminal application and your SSH key to connect to the VM (`kafka-vm`) using the confirmed public IP address.
 ```bash
 ssh username@ipaddress
 ```

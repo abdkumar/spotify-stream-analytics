@@ -1,9 +1,9 @@
 import os
 from dotenv import load_dotenv
 import yaml
-from .spotify_utils import SpotifyUtils
-from .user_utils import UserUtils
-from .kafka_utils import KafkaStreamer
+from spotify_utils import SpotifyUtils
+from user_utils import UserUtils
+from kafka_utils import KafkaStreamer
 
 load_dotenv()  # take environment variables from .env.
 

@@ -35,8 +35,8 @@ These variables are essential for Terraform to authenticate with Azure and execu
 
 ## Virtual Machines:
 **Configuration**: Linux VM , Ubunut 22 LTS, Standard_B2ms	(vCPU=2, RAM=8GB, SSD=16GB)
-- kafka-vm: Runs a Kafka server and produces Kafka events using Python.
-- spark-vm: Runs a Spark streaming job to process stream events, orchestrates Databricks CDC job and DBT models using Airflow.
+- kafka-vm: Runs a Kafka server and produces Kafka events using Python, run Spark streaming job to process stream events
+- airflow-vm: Orchestrates Databricks CDC job and DBT models using Airflow.
 
 ## Storage Account:
 **Configuration**: Standard LRS with hierarchical namespace enabled (Azure Data Lakge Storage Gen 2)

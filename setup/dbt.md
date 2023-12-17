@@ -33,18 +33,26 @@ python -m pip install \
   dbt-trino
 ```
 
-# Create dbt project
-Now let’s go ahead and create a dbt project — to do so, we can initialise a new dbt project by running the dbt init command in the terminal:
+# Configuring Snowflake Profile
+The profiles.yml file should contain the required variables for connecting to your Snowflake warehouse.
+Ensure the following variables are defined within the "spotify" profile:
 
-```
-dbt init test_dbt_project
-```
+we are orchestration the dbt transforamtions using airflow DAG's so add these varaibles as secrets in Keyvault
 
-You will then be prompted to select which database you like to use (depending on the adapters you have installed locally, you may see different options):
+- sfAccount: Snowflake account URL
+- sfuser: Snowflake warehouse username 
+- sfPassword: Snowflake warehouse password
+- sfDatabase: Snowflake database name
+- sfSchema: Snowflake schema name
+- sfDbtRole: Snowflake role with proper grants (dev_role in our case)
+- sfWarehouse: Snowflake warehouse name
 
-Make sure to enter the number that corresponds to the required adapter/warehouse. Now the init command should have created the following basic structure in the directory where you’ve executed it:
+**[check snowflake configuration](https://github.com/abdkumar/spotify-stream-analytics/blob/main/setup/snowflake.md)**
 
-![](https://miro.medium.com/v2/resize:fit:828/format:webp/1*Nr3yOtu6fbHukbAbQVUchg.png)
+To run dbt locally, you have two options:
+- Hardcode the variables in profiles.yml: Edit the profiles.yml file and directly replace the placeholder values with your actual credentials.
+- Set environment variables: Set environment variables for each connection parameter (e.g., export SF_PASSWORD=your_password).
+
 
 # Setting credentials of the adapter
 If you're using dbt Core, you'll need a profiles.yml file that contains the connection details for your data platform. When you run dbt Core from the command line, it reads your dbt_project.yml file to find the profile name, and then looks for a profile with the same name in your profiles.yml file. This profile contains all the information dbt needs to connect to your data platform.
@@ -52,11 +60,38 @@ If you're using dbt Core, you'll need a profiles.yml file that contains the conn
 by default profile.yml will be freated in the directory `C:\Users\<username>\.dbt`. Make sure to set the right profile in project.yml 
 
 Run debug command to check the chosen data platform connection
-```
+```bash
 dbt debug
 ``` 
 
-# Run dbt models
+If the profiles.yml is added in current working directory then  run
+```bash
+dbt debug --profiles-dir=.
+```
+
+# Orchestrating dbt models through airflow
+There are 2 ways in which we can orchestrate dbt models for the Spotify project using Airflow.
+
+### Bruteforce Approach:
+Copying the dbt project directly into the Airflow DAGs directory is discouraged. This clutters the directory and makes maintenance cumbersome.
+
+### Recommended Approach:
+**1. Dockerize your dbt project:**
+- We've created a Dockerfile within the dbt folder to containerize the dbt environment.
+- Build the Docker image using:
+
+**2. Orchestrate with Airflow DockerOperator:**
+- Create an Airflow DAG with a DockerOperator task.
+- Specify the spotify-dbt:latest image in the operator.
+- Mount the dbt project directory (e.g., ~/spotify-stream-analytics/dbt) as a volume within the container.
+- Pass environment variables containing sensitive information (e.g., passwords) at runtime using the env parameter in the `DockerOperator`.
+
+```bash
+cd ~/spotify-stream-analytics/dbt
+docker build -t spotify-dbt:latest .
+```
+
+# Running dbt models standalone
 Models are where your developers spend most of their time within a dbt environment. Models are primarily written as a select statement and saved as a .sql file. While the definition is straightforward, the complexity of the execution will vary from environment to environment. Models will be written and rewritten as needs evolve and your organization finds new ways to maximize efficiency.
 
 you can add your transformation files in models directory
@@ -81,7 +116,7 @@ dbt run --profiles-dir=.
 if we want to run only specific model
 
 ```
-dbt run --profiles-dir=. --select model1
+dbt run --profiles-dir=. --select dim_dates
 ```
 
 #### Read more about dbt: https://docs.getdbt.com/docs/introduction

@@ -10,7 +10,6 @@ terraform.tfstate.backup
 .terraform.tfstate.lock.info
 temp/
 tfplan
-*.ipynb
 checkpoint/
 spark-warehouse/
 delta_checkpoint.txt
